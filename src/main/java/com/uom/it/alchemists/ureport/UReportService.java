@@ -213,6 +213,7 @@ public class UReportService {
         System.out.println(status);
         return Response.status(200).entity(status).build();
     }
+
     @Path("/updateMobile")
     @GET
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -259,6 +260,7 @@ public class UReportService {
         System.out.println("404");
         return Response.status(200).entity(status).build();
     }
+
     @Path("/updateProfileImageUrl")
     @GET
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -305,6 +307,7 @@ public class UReportService {
         System.out.println("404");
         return Response.status(200).entity(status).build();
     }
+
     @Path("/updateCoverImageUrl")
     @GET
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -412,7 +415,7 @@ public class UReportService {
         String user_id = queryParams.get("user_id").toString().replaceAll("\\[", "").replaceAll("\\]", "");
 
 
-        if (user_id.trim().length() > 0 ) {
+        if (user_id.trim().length() > 0) {
             if (!(user_id.trim().equals("undefined"))) {
 
                 try {
@@ -752,12 +755,12 @@ public class UReportService {
 
 
             for (DBObject doc : cur) {
+                System.out.println(doc.toString());
                 String userName = (String) doc.get("name");
                 String profileImageUrl = (String) doc.get("profileImageUrl");
 
                 try {
                     BasicDBList commentsDBObject = (BasicDBList) doc.get("comments");
-                    BasicDBList postsDBObject = (BasicDBList) doc.get("posts");
                     if (commentsDBObject.size() > 0) {
                         for (int i = 0; i < commentsDBObject.size(); i++) {
                             DBObject dbObject = (DBObject) commentsDBObject.get(i);
@@ -770,6 +773,11 @@ public class UReportService {
 
                         }
                     }
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+                try {
+                    BasicDBList postsDBObject = (BasicDBList) doc.get("posts");
                     if (postsDBObject.size() > 0) {
                         for (int i = 0; i < postsDBObject.size(); i++) {
                             DBObject dbObject = (DBObject) postsDBObject.get(i);
@@ -781,16 +789,19 @@ public class UReportService {
                             notificationsArray.put(jsonObject);
                         }
                     }
+
                 } catch (Exception e) {
                     System.out.println(e);
                 }
+
 
             }
 
             String serialize = notificationsArray.toString();
             return Response.status(200).entity(serialize).build();
 
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             String status = "404";
 
             return Response.status(200).entity(status).build();
