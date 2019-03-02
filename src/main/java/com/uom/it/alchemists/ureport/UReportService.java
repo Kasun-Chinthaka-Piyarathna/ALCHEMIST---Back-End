@@ -28,7 +28,6 @@ import java.util.List;
 @Path("/ureportservice")
 public class UReportService {
 
-
     final static Logger LOGGER = Logger.getLogger(UReportService.class);
 
     /**
@@ -52,7 +51,6 @@ public class UReportService {
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 
         System.out.println(queryParams.toString());
-
         String email = queryParams.get("email").toString().replaceAll("\\[", "").replaceAll("\\]", "");
         String password = queryParams.get("password").toString().replaceAll("\\[", "").replaceAll("\\]", "");
         String name = queryParams.get("name").toString().replaceAll("\\[", "").replaceAll("\\]", "");
@@ -404,6 +402,56 @@ public class UReportService {
     }
 
 
+    @Path("/updateReviewedPost")
+    @GET
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response updateReviewedPost(@Context UriInfo ui) throws UnknownHostException {
+        MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+
+        System.out.println(queryParams.toString());
+
+        // String user_id = queryParams.get("user_id").toString().replaceAll("\\[", "").replaceAll("\\]", "");
+        String post_id = queryParams.get("post_id").toString().replaceAll("\\[", "").replaceAll("\\]", "");
+        String post_text = queryParams.get("post_text").toString().replaceAll("\\[", "").replaceAll("\\]", "");
+        String status = queryParams.get("status").toString().replaceAll("\\[", "").replaceAll("\\]", "");
+
+        if (post_id.trim().length() > 0 && post_text.trim().length() > 0 && status.trim().length() > 0) {
+            if (!(post_id.trim().equals("undefined")) && !(post_text.trim().equals("undefined")) && !(status.trim().equals("undefined"))) {
+
+                try {
+
+                    DB db = DBConnection.getConnection();
+
+                    DBCollection rest = db.getCollection("user");
+
+                    BasicDBObject query = new BasicDBObject();
+                    query.put("posts.post_id", post_id);
+
+                    BasicDBObject newDocument = new BasicDBObject();
+                    newDocument.put("posts.$.post_text", post_text);
+                    newDocument.put("posts.$.status", status);
+
+                    BasicDBObject updateObj = new BasicDBObject();
+                    updateObj.put("$set", newDocument);
+
+                    rest.update(query, updateObj);
+
+                    String s = "Updated";
+                    return Response.status(200).entity(s).build();
+
+                } catch (Exception e) {
+                    String s = "404";
+
+                    return Response.status(200).entity(s).build();
+                }
+            }
+        }
+        String s = "404";
+        System.out.println("404");
+        return Response.status(200).entity(status).build();
+    }
+
+
     @Path("/deleteUser")
     @GET
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -619,6 +667,7 @@ public class UReportService {
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     System.out.println(Constants.sdf.format(timestamp));
 
+
                     BasicDBObject document = new BasicDBObject();
                     document.put("comment_id", comment_id);
                     document.put("post_id", post_id);
@@ -794,7 +843,6 @@ public class UReportService {
                     System.out.println(e);
                 }
 
-
             }
 
             String serialize = notificationsArray.toString();
@@ -806,13 +854,10 @@ public class UReportService {
 
             return Response.status(200).entity(status).build();
         }
-
     }
-
 
     //Still use testing purposes
     public static void main(String[] args) throws UnknownHostException {
-
 
     }
 }
